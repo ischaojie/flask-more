@@ -4,14 +4,25 @@ site_url: https://flask-valid.readthedocs.io/en/latest/
 site_author: chaojie
 
 theme:
-  name: 'material'
+  name: "material"
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github
 
 repo_name: ischaojie/flask-valid
 repo_url: https://github.com/ischaojie/flask-valid
 
 nav:
-- Overview: index.md
-- Intro: intro.md
+  - Overview: index.md
+  - Intro: intro.md
 
 markdown_extensions:
   - admonition

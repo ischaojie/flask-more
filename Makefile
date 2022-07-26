@@ -27,7 +27,12 @@ coverage:
 docs:
 	poetry run mkdocs build
 
+.PHONY: build
+build:
+	poetry build
+	poetry run mkdocs build --clean
+
 .PHONY: publish
 publish:
-	poetry publish --build
+	poetry publish
 	poetry run mkdocs gh-deploy --force
