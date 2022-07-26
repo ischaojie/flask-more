@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "flask-valid"
-version = "0.1.1"
+version = "0.1.2"
 description = "Flask validator use pydantic"
 authors = ["chaojie <zhuzhezhe95@gmail.com>"]
 license = "MIT"
