@@ -1,27 +1,26 @@
 # Overview
 
+`flask-lan` is a schema validator and swagger generator but more modernized.
+
 !!! Warning
 
-    Currently, `flask-valid` is still under active development(before verion 1.0.0). Don't use it in production.
+    Currently, `flask-lan` is still under active development(before verion 1.0.0). Don't use it in production.
 
-`flask-valid` is a Flask request and response validator use pydantic.
-
-Basically, you just need add `validator` decorator to your view function,
-`flask-valid` will auto validate params data and rsponse data for you.
-
-It's kind of like famous library `FastAPI`, bring part of brilliant features of `FastAPI` to your Flask application.
+It's kind of like the famous library `FastAPI`, bringing part of brilliant features of `FastAPI` to your Flask application.
+For example, it uses [Pydantic](https://github.com/samuelcolvin/pydantic) for Request/Response params validation and auto-generates `swagger` docs.
 
 ## Feature
 
 -   Intuitive and easy to use.
--   Use type hinting to validate path + query + body params.
+-   Use type hinting to validate request/response params.
+-   Auto-generate `swagger` docs.
 
 ## Install
 
 Installation is as simple as:
 
 ```bash
-pip install flask-valid
+pip install flask-lan
 ```
 
 ## Example
@@ -29,7 +28,7 @@ pip install flask-valid
 ```python
 from flask import Flask
 from pydantic import BaseModel
-from flask_valid import validator
+from flask_lan import validator
 
 app = Flask(__name__)
 
@@ -68,7 +67,7 @@ Try this in your editor, and use view function's params for your work.
 
 ## Thanks
 
-`flask-valid` is based on [flask](https://github.com/pallets/flask) and [pydantic](https://github.com/samuelcolvin/pydantic), thanks all of them's fantastic work.
+`flask-lan` is based on [flask](https://github.com/pallets/flask) and [pydantic](https://github.com/samuelcolvin/pydantic), thanks all of them's fantastic work.
 
 ## License
 

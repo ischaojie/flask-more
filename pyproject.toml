@@ -1,11 +1,11 @@
 [tool.poetry]
-name = "flask-valid"
-version = "0.1.2"
-description = "Flask validator use pydantic"
+name = "flask-lan"
+version = "0.1.3"
+description = "Flask-Lan is a schema validator and swagger generator but more modernized"
 authors = ["chaojie <zhuzhezhe95@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "flask_valid"}]
+packages = [{include = "flask_lan"}]
 
 [tool.poetry.dependencies]
 python = "^3.8"

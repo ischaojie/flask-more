@@ -1,6 +1,6 @@
 from flask import Flask
 from pydantic import BaseModel
-from flask_valid import validator
+from flask_lan import validator
 
 app = Flask(__name__)
 

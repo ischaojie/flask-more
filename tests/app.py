@@ -3,7 +3,7 @@ from typing import List
 from flask import Flask
 from pydantic import BaseModel
 
-from flask_valid import validator
+from flask_lan import validator
 
 app = Flask(__name__)
 app.config["TESTING"] = True

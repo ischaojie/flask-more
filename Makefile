@@ -1,10 +1,10 @@
 .DEFAULT_GOAL := all
-isort = poetry run isort flask_valid tests
-black = poetry run black flask_valid tests
+isort = poetry run isort flask_lan tests
+black = poetry run black flask_lan tests
 
 .PHONY: check
 check:
-	poetry run flake8 flask_valid/ tests/
+	poetry run flake8 flask_lan/ tests/
 	$(isort) --check-only --df
 	$(black) --check --diff
 
