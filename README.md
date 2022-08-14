@@ -1,6 +1,6 @@
-# Flask-Lan
+# flask-lan
 
-`Flask-Lan` is a schema validator and swagger generator but more modernized.
+`flask-lan` is a schema validator and swagger generator with more modernized.
 
 !!! Warning
 

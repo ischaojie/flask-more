@@ -1,6 +1,6 @@
-site_name: Flask-Valid
-site_description: Flask request and response validator use pydantic.
-site_url: https://flask-valid.readthedocs.io/en/latest/
+site_name: flask-lan
+site_description: flask-lan is a schema validator and swagger generator with more modernized.
+site_url: https://flask-lan.readthedocs.io/en/latest/
 site_author: chaojie
 
 theme:
@@ -17,8 +17,8 @@ theme:
   icon:
     repo: fontawesome/brands/github
 
-repo_name: ischaojie/flask-valid
-repo_url: https://github.com/ischaojie/flask-valid
+repo_name: ischaojie/flask-lan
+repo_url: https://github.com/ischaojie/flask-lan
 
 nav:
   - Overview: index.md
