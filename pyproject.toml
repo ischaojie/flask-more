@@ -1,29 +1,49 @@
-[tool.poetry]
-name = "flask-lan"
-version = "0.1.3"
-description = "Flask-Lan is a schema validator and swagger generator but more modernized"
-authors = ["chaojie <zhuzhezhe95@gmail.com>"]
-license = "MIT"
-readme = "README.md"
-packages = [{include = "flask_lan"}]
-
-[tool.poetry.dependencies]
-python = "^3.8"
-Flask = "^2.1.3"
-pydantic = "^1.9.1"
-
-[tool.poetry.dev-dependencies]
-flake8 = "^4.0.1"
-pytest = "^7.1.2"
-black = "^22.6.0"
-isort = "^5.10.1"
-coverage = "^6.4.2"
-mkdocs = "^1.3.1"
-mkdocs-material = "^8.3.9"
-
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "flask-lan"
+description = "Flask-Lan is a schema validator and swagger generator but more modernized"
+dynamic = ["version"]
+authors = [
+    { name = "chaojie", email = "zhuzhezhe95@gmail.com" },
+]
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.8"
+dependencies = [
+    "flask",
+    "pydantic"
+]
+keywords = [
+    "flask",
+    "plugin",
+    "swagger",
+    "validator",
+]
+
+[project.urls]
+Documentation = "https://ischaojie.github.io/flask-lan/"
+Source = "https://github.com/ischaojie/flask-lan"
+
+[tool.hatch.version]
+path = "flask_lan/__init__.py"
+
+[tool.hatch.envs.default]
+dependencies = [
+    "flake8",
+    "pytest",
+    "black",
+    "isort",
+    "coverage",
+    "mkdocs",
+    "mkdocs-material",
+]
+
+[tool.hatch.envs.default.scripts]
+docs = "mkdocs build --clean --strict"
+docs-serve = "mkdocs serve --dev-addr localhost:8000"
 
 [tool.black]
 line-length = 120
