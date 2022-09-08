@@ -1,4 +1,4 @@
-from flask_lan.core import validator
+from flask_lan.validate import validator
 
-__version__ = "0.1.4"
+__version__ = "0.1.5"
 __all__ = ["validator"]

@@ -48,6 +48,11 @@ def test_validate_body(client):
     assert rsp.json["price"] == 1.0
 
 
+def test_validate_body_empty(client):
+    rsp = client.post("/echo_body")
+    assert rsp.status_code == 400
+
+
 def test_validate_path_and_query(client):
     rsp = client.get("/echo_path_and_query/1?name=test&age=1")
     assert rsp.status_code == 200
