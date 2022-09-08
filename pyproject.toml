@@ -34,16 +34,30 @@ path = "flask_lan/__init__.py"
 dependencies = [
     "flake8",
     "pytest",
+    "mypy",
     "black",
     "isort",
-    "coverage",
+    "pytest-cov",
     "mkdocs",
     "mkdocs-material",
 ]
 
 [tool.hatch.envs.default.scripts]
-docs = "mkdocs build --clean --strict"
-docs-serve = "mkdocs serve --dev-addr localhost:8000"
+clean = ["git clean"]
+check = [
+    "flake8 flask_lan tests --max-line-length=120",
+    "black --check --diff flask_lan tests",
+    "isort --check-only --diff flask_lan tests",
+]
+lint = [
+    "isort flask_lan tests",
+    "black flask_lan tests",
+]
+test = [
+    "pytest tests/ -s --cov=flask_lan --cov-config=pyproject.toml --cov-report=term-missing --cov-fail-under=80 --junitxml=unittest.xml",
+]
+report = ["coverage report -m"]
+all = ["check", "test"]
 
 [tool.black]
 line-length = 120
