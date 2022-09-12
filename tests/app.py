@@ -58,7 +58,7 @@ def echo_body(book: BookSchema):
 
 @app.get("/echo_path_and_query/<id>")
 @validator()
-def echo_path_and_query(id: int, name: str, age: int):
+def echo_path_and_query(id: int, name: str, age: int = 18):
     return {"id": id, "name": name, "age": age}
 
 
