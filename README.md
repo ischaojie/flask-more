@@ -1,10 +1,10 @@
-# flask-lan
+# Flask-Lan
 
-`flask-lan` is a schema validator and swagger generator with more modernized.
+`Flask-Lan` is a modernized flask api builder with validator and openapi.
 
 !!! Warning
 
-    Currently, `flask-lan` is still under active development(before verion 1.0.0). Don't use it in production.
+    Currently, `Flask-Lan` is still under active development(before verion 1.0.0). Don't use it in production.
 
 It's kind of like the famous library `FastAPI`, bringing part of brilliant features of `FastAPI` to your Flask application.
 For example, it uses [Pydantic](https://github.com/samuelcolvin/pydantic) for Request/Response params validation and auto-generates `swagger` docs.
@@ -18,7 +18,7 @@ For example, it uses [Pydantic](https://github.com/samuelcolvin/pydantic) for Re
 ## Quick start
 
 ```bash
-pip install flask-lan
+pip install Flask-Lan
 ```
 
 A simple example:
