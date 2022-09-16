@@ -7,7 +7,7 @@ from werkzeug.routing import Map, Rule
 from flask_lan.schemas import ParameterInType
 
 # from flask_lan.schemas import OpenAPI
-from flask_lan.utils import get_f_annotations, get_f_defaults
+from flask_lan.utils import get_f_annotations, is_f_param_required
 
 
 def gen_openapi_schema(
@@ -144,7 +144,7 @@ def _get_view_params_schema(rule: Rule, view_func: Callable) -> tuple:
         else:
             param["name"] = name
             param["in"] = ParameterInType.query
-            param["required"] = not bool(dict(get_f_defaults(view_func)).get(name, None))
+            param["required"] = is_f_param_required
             param["schema"] = {
                 "type": _type.__name__,
             }
