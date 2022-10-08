@@ -19,17 +19,12 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: | 
+        run: |
           python -m pip install hatch
           hatch env create
 
-      - name: Run linting checks
-        run: hatch run make check
-
-      - name: Run tests (coverage)
-        run: |
-          hatch run make test
-          hatch run make coverage
+      - name: Run linting & Test
+        run: hatch run all
 
       - name: Upload Coverage
         uses: codecov/codecov-action@v3

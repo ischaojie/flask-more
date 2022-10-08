@@ -1,157 +1,147 @@
 from functools import partial, wraps
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
+from inspect import Parameter as InspectParameter
+from inspect import signature
+from typing import Callable, Dict, Iterator, List, Optional, Union
 
-from flask import Flask, current_app, request
-from pydantic import BaseModel, HttpUrl
-from werkzeug.routing import Map, Rule
-from flask_lan.schemas import ParameterInType
+from flask import current_app, request
+from pydantic import BaseModel
+from werkzeug.routing import Rule
 
-# from flask_lan.schemas import OpenAPI
-from flask_lan.utils import get_f_annotations, is_f_param_required
+from flask_lan.schemas import (
+    Components,
+    Info,
+    MediaType,
+    OpenAPI,
+    Operation,
+    Parameter,
+    ParameterInType,
+    PathItem,
+    Reference,
+    RequestBody,
+    Response,
+    Schema,
+)
+from flask_lan.utils import get_f_annotations
 
 
-def gen_openapi_schema(
-    *,
+def gen_openapi_spec(
+    rules: Iterator[Rule],
+    view_functions: Dict[str, Callable],
     title: str,
     version: str,
     openapi_version: str = "3.0.2",
     desc: Optional[str] = None,
-    app: Flask,
-    terms: Optional[HttpUrl] = None,
-    contact: Optional[Dict[str, str]] = None,
-    license: Optional[Dict[str, str]] = None,
-    tags: Optional[Dict[str, Any]] = None,
-):
+) -> OpenAPI:
     """
-    generate openapi specification
+    Generate openapi specification schema
+
     title: openapi title
     version: current api version
     """
-    map = app.url_map
-    info = {
-        "title": title,
-        "description": desc,
-        "termsOfService": terms,
-        "contact": contact,
-        "license": license,
-        "version": version,
+    info = Info(title=title, description=desc, version=version)
+
+    paths_with_rules: Dict[str, Dict[str, Rule]] = {}
+    for rule in rules:
+        path = rule.rule
+        # TODO: support more http methods
+        methods_with_rule = (
+            {method: rule for method in rule.methods} if rule.methods else {}
+        )
+        paths_with_rules.setdefault(path, methods_with_rule).update(methods_with_rule)
+    paths = {
+        path: make_pathitem(method_rules, view_functions)
+        for path, method_rules in paths_with_rules.items()
     }
-    paths = {}
-    components = {}
-    schemas = {}
-    view_functions = app.view_functions or {}
-    docs_schema = app.extensions.get("lan", {})
-    for rule in map.iter_rules():
-        view_func = view_functions.get(rule.endpoint)
-        params_schema = get_view_params_schema(rule, view_func, docs_schema)
-        if not params_schema:
+
+    components = Components(schemas=make_schemas(rules, view_functions))
+    return OpenAPI(
+        openapi=openapi_version,
+        info=info,
+        paths=paths,
+        components=components,
+    )
+
+
+def make_pathitem(
+    method_rules: Dict[str, Rule], view_functions: Dict[str, Callable]
+) -> PathItem:
+    items = {}
+    for method, rule in method_rules.items():
+        view_func = view_functions.get(rule.endpoint, None)
+        if not view_func:
             continue
-        params, schema = params_schema
-        view_path = build_view_path(rule)
-        paths.setdefault(view_path, {}).update(params)
-        schemas.update(schema)
-
-    components["schemas"] = schemas
-
-    r = {
-        "openapi": openapi_version,
-        "info": info,
-        "externalDocs": None,
-        "servers": "",
-        "tags": tags,
-        "paths": paths,
-        "components": components,
+        items[method] = make_operation(rule, view_func)
+    items = {
+        method: make_operation(rule, view_functions.get(rule.endpoint, None))
+        for method, rule in method_rules.items()
     }
-    # return OpenAPI(**r).dict()
+    return PathItem(**items)
 
 
-def build_view_path(rule: Rule):
-    """build view router path from rule"""
-    parts = []
-    for is_dynamic, data in rule._trace:
-        if is_dynamic:
-            parts.append(f"<{data}>")
-        else:
-            parts.append(data)
-    path = "".join(parts).lstrip("|")
-    return path
+def make_operation(rule: Rule, view_func: Optional[Callable]) -> Operation:
+    if not view_func:
+        return
+    sig = signature(view_func)
 
-
-def get_view_params_schema(
-    rule: Rule,
-    view_func: Callable,
-    docs_schema: dict,
-) -> Optional[tuple]:
-    """
-    Get path or query params and request body schema from rule.
-
-    """
-    params = {}
-    schema = {}
-
-    methods = rule.methods and rule.methods or []
-    for method in methods:
-        method_schema = {
-            "responses": {},
-        }
-        method_schema.update(docs_schema.get(rule.endpoint, {}))
-
-        # query or path params
-        view_params, body_schema = _get_view_params_schema(rule, view_func)
-        if view_params:
-            method_schema["parameters"] = view_params
-        # requestBody
-        if body_schema:
-            body_name, _schema = body_schema
-            method_schema["requestBody"] = {
-                "description": "",
-                "content": {
-                    "application/json": {
-                        "schema": _schema,
-                    },
-                },
-                # FIXME
-                "required": True,
-            }
-        params[method] = method_schema
-        schema[body_name] = _schema
-
-    return params, schema
-
-
-def _get_view_params_schema(rule: Rule, view_func: Callable) -> tuple:
-
-    # path and query params
-    params: list = []
-    # request body schema
-    body_schema: tuple = ()
-
+    # make params
+    parameters = []
+    request_body_content = {}
+    request_body_required = False
     for name, _type in get_f_annotations(view_func).items():
-        param: dict = {}
         # this is path params
         if name in rule.arguments:
-            param["name"] = name
-            param["in"] = ParameterInType.path
-            param["required"] = True
-            param["schema"] = {
-                "type": _type.__name__,
-                # TODO: schema default
-            }
+            parameters.append(
+                Parameter.parse_obj(
+                    dict(
+                        name=name,
+                        in_=ParameterInType.path,
+                        required=True,
+                        schema=Schema(type=_type.__name__),
+                    )
+                )
+            )
         # this is request body params
         elif issubclass(_type, BaseModel):
-            body_schema = (name, _type.schema())
-        # this all is query body
+            request_body_content["application/json"] = MediaType(
+                schema=Schema(**_type.schema())
+            )
+            request_body_required = True
+        # this is query body
         else:
-            param["name"] = name
-            param["in"] = ParameterInType.query
-            param["required"] = is_f_param_required
-            param["schema"] = {
-                "type": _type.__name__,
-            }
-        if param:
-            params.append(param)
+            parameters.append(
+                Parameter.parse_obj(
+                    dict(
+                        name=name,
+                        in_=ParameterInType.query,
+                        required=_type.default is InspectParameter.empty,
+                        schema=Schema(type=_type.__name__),
+                    )
+                )
+            )
+    req_body = RequestBody(content=request_body_content, required=request_body_required)
 
-    return params, body_schema
+    # make responses
+    sig.return_annotation
+    # TODO: rsp
+    responses = {"200": Response(description="OK")}
+    return Operation(
+        parameters=parameters,
+        requestBody=req_body,
+        responses=responses,
+    )
+
+
+def make_schemas(rules: Iterator[Rule], view_functions: Dict[str, Callable]):
+    schemas: Dict[str, Union[Schema, Reference]] = {}
+    for rule in rules:
+        view_func = view_functions.get(rule.endpoint, None)
+        if not view_func:
+            pass
+        for name, _type in get_f_annotations(view_func).items():
+            if issubclass(_type, BaseModel):
+                schemas[_type.__name__] = Schema(**_type.schema())
+
+    return schemas
 
 
 def docs(

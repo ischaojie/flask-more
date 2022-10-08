@@ -40,16 +40,18 @@ dependencies = [
     "pytest-cov",
     "mkdocs",
     "mkdocs-material",
+    "autoflake",
 ]
 
 [tool.hatch.envs.default.scripts]
 clean = ["git clean"]
 check = [
-    "flake8 flask_lan tests --max-line-length=120",
+    "flake8 flask_lan tests --max-line-length=90",
     "black --check --diff flask_lan tests",
     "isort --check-only --diff flask_lan tests",
 ]
 lint = [
+    "autoflake -r flask_lan tests",
     "isort flask_lan tests",
     "black flask_lan tests",
 ]
@@ -60,7 +62,11 @@ report = ["coverage report -m"]
 all = ["check", "test"]
 
 [tool.black]
-line-length = 120
+line-length = 90
 
 [tool.isort]
 profile = "black"
+
+[tool.autoflake]
+in-place = true
+remove-all-unused-imports = true
