@@ -1,8 +1,9 @@
 from typing import Optional
 
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template_string
 
 from flask_lan.openapi import gen_openapi_spec
+from flask_lan.templates import redoc_template, swagger_template
 
 
 class Lan:
@@ -11,12 +12,14 @@ class Lan:
         app: Optional[Flask] = None,
         title: str = "Flask-Lan",
         version: str = "1.0",
-        docs_url: str = "/docs",
+        docs_url: str = "/swagger",
+        redoc_url: str = "/redoc",
         openapi_url: str = "/openapi.json",
     ) -> None:
         self.title = title
         self.version = version
         self.docs_url = docs_url
+        self.redoc_url = redoc_url
         self.openapi_url = openapi_url
 
         if app is not None:
@@ -27,14 +30,23 @@ class Lan:
     def init_app(self, app: Flask):
         # register docs router
         if self.docs_url:
-            app.add_url_rule(self.docs_url, view_func=self.docs)
+            app.add_url_rule(self.docs_url, view_func=self.swagger)
+        if self.redoc_url:
+            app.add_url_rule(self.redoc_url, view_func=self.redoc)
         # register openapi router
         if self.openapi_url:
             app.add_url_rule(self.openapi_url, view_func=self.openapi)
 
-    def docs(self):
+    def init_template_engine(self):
+        pass
+
+    def swagger(self):
         context = {}
-        return render_template("docs.html", context=context)
+        return render_template_string(swagger_template, context=context)
+
+    def redoc(self):
+        context = {}
+        return render_template_string(redoc_template, context=context)
 
     def openapi(self):
         self.openapi_schema = gen_openapi_spec(
