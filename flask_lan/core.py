@@ -1,6 +1,8 @@
-from flask import Flask, render_template, jsonify
 from typing import Optional
-from flask_lan.openapi import gen_openapi_schema
+
+from flask import Flask, jsonify, render_template
+
+from flask_lan.openapi import gen_openapi_spec
 
 
 class Lan:
@@ -19,6 +21,7 @@ class Lan:
 
         if app is not None:
             self.app = app
+            self.rules = self.app.url_map.iter_rules()
             self.init_app(app)
 
     def init_app(self, app: Flask):
@@ -34,12 +37,11 @@ class Lan:
         return render_template("docs.html", context=context)
 
     def openapi(self):
-        self.openapi_schema = gen_openapi_schema(
+        self.openapi_schema = gen_openapi_spec(
+            rules=self.rules,
+            view_functions=self.app.view_functions,
             title=self.title,
             version=self.version,
             desc="",
-            app=self.app,
-            contact={},
-            license={},
         )
-        return jsonify(self.openapi_schema)
+        return jsonify(self.openapi_schema.dict())

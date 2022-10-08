@@ -3,10 +3,12 @@ from typing import List
 from flask import Flask
 from pydantic import BaseModel
 
-from flask_lan import validator
+from flask_lan import Lan, validator
 
 app = Flask(__name__)
 app.config["TESTING"] = True
+
+Lan(app, "Book API")
 
 
 class BookSchema(BaseModel):

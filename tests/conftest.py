@@ -1,4 +1,7 @@
 import pytest
+from flask import Flask
+from flask.testing import FlaskClient
+
 from tests.app import app as _app
 
 
@@ -8,5 +11,5 @@ def app():
 
 
 @pytest.fixture(autouse=True)
-def client(app):
+def client(app: Flask) -> FlaskClient:
     return app.test_client()
