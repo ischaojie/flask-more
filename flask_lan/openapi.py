@@ -21,7 +21,6 @@ from flask_lan.schemas import (
     Response,
     Schema,
 )
-from flask_lan.utils import get_f_annotations
 
 
 def gen_openapi_spec(
@@ -80,14 +79,16 @@ def make_pathitem(
 
 def make_operation(rule: Rule, view_func: Optional[Callable]) -> Operation:
     if not view_func:
-        return
+        return Operation()
+
     sig = signature(view_func)
 
     # make params
     parameters = []
     request_body_content = {}
     request_body_required = False
-    for name, _type in get_f_annotations(view_func).items():
+    for name, param in sig.parameters.items():
+        _type = param.annotation
         # this is path params
         if name in rule.arguments:
             parameters.append(
@@ -113,7 +114,7 @@ def make_operation(rule: Rule, view_func: Optional[Callable]) -> Operation:
                     dict(
                         name=name,
                         in_=ParameterInType.query,
-                        required=_type.default is InspectParameter.empty,
+                        required=param.default is InspectParameter.empty,
                         schema=Schema(type=_type.__name__),
                     )
                 )
@@ -136,8 +137,10 @@ def make_schemas(rules: Iterator[Rule], view_functions: Dict[str, Callable]):
     for rule in rules:
         view_func = view_functions.get(rule.endpoint, None)
         if not view_func:
-            pass
-        for name, _type in get_f_annotations(view_func).items():
+            return {}
+        sig = signature(view_func)
+        for _, param in sig.parameters.items():
+            _type = param.annotation
             if issubclass(_type, BaseModel):
                 schemas[_type.__name__] = Schema(**_type.schema())
 

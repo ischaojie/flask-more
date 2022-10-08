@@ -56,7 +56,7 @@ lint = [
     "black flask_lan tests",
 ]
 test = [
-    "pytest tests/ -s --cov=flask_lan --cov-config=pyproject.toml --cov-report=term-missing --cov-fail-under=80 --junitxml=unittest.xml",
+    "pytest tests/ -s --cov=flask_lan --cov-config=pyproject.toml --cov-report=term-missing --cov-report=xml --cov-fail-under=90",
 ]
 report = ["coverage report -m"]
 all = ["check", "test"]
