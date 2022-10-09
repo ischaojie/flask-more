@@ -10,11 +10,11 @@ class Lan:
     def __init__(
         self,
         app: Optional[Flask] = None,
-        title: str = "Flask-Lan",
+        title: str = "API Docs",
         version: str = "1.0",
         docs_url: str = "/swagger",
         redoc_url: str = "/redoc",
-        openapi_url: str = "/openapi.json",
+        openapi_url: str = "/openapi",
     ) -> None:
         self.title = title
         self.version = version
@@ -24,7 +24,6 @@ class Lan:
 
         if app is not None:
             self.app = app
-            self.rules = self.app.url_map.iter_rules()
             self.init_app(app)
 
     def init_app(self, app: Flask):
@@ -41,19 +40,20 @@ class Lan:
         pass
 
     def swagger(self):
-        context = {}
-        return render_template_string(swagger_template, context=context)
+        context = {"title": self.title}
+        return render_template_string(swagger_template, **context)
 
     def redoc(self):
-        context = {}
-        return render_template_string(redoc_template, context=context)
+        context = {"title": self.title}
+        return render_template_string(redoc_template, **context)
 
     def openapi(self):
         self.openapi_schema = gen_openapi_spec(
-            rules=self.rules,
+            map=self.app.url_map,
             view_functions=self.app.view_functions,
             title=self.title,
             version=self.version,
             desc="",
         )
-        return jsonify(self.openapi_schema.dict())
+        schema = self.openapi_schema.dict(by_alias=True, exclude_defaults=True)
+        return jsonify(schema)

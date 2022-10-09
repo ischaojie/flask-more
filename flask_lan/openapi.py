@@ -5,7 +5,7 @@ from typing import Callable, Dict, Iterator, List, Optional, Union
 
 from flask import current_app, request
 from pydantic import BaseModel
-from werkzeug.routing import Rule
+from werkzeug.routing import Map, Rule
 
 from flask_lan.schemas import (
     Components,
@@ -24,7 +24,7 @@ from flask_lan.schemas import (
 
 
 def gen_openapi_spec(
-    rules: Iterator[Rule],
+    map: Map,
     view_functions: Dict[str, Callable],
     title: str,
     version: str,
@@ -37,14 +37,18 @@ def gen_openapi_spec(
     title: openapi title
     version: current api version
     """
+    exclude_path = ("/swagger", "/openapi", "/redoc")
+
     info = Info(title=title, description=desc, version=version)
 
     paths_with_rules: Dict[str, Dict[str, Rule]] = {}
-    for rule in rules:
+    for rule in map.iter_rules():
         path = rule.rule
+        if path in exclude_path:
+            continue
         # TODO: support more http methods
         methods_with_rule = (
-            {method: rule for method in rule.methods} if rule.methods else {}
+            {method.lower(): rule for method in rule.methods} if rule.methods else {}
         )
         paths_with_rules.setdefault(path, methods_with_rule).update(methods_with_rule)
     paths = {
@@ -52,7 +56,7 @@ def gen_openapi_spec(
         for path, method_rules in paths_with_rules.items()
     }
 
-    components = Components(schemas=make_schemas(rules, view_functions))
+    components = Components(schemas=make_schemas(map.iter_rules(), view_functions))
     return OpenAPI(
         openapi=openapi_version,
         info=info,
@@ -70,16 +74,14 @@ def make_pathitem(
         if not view_func:
             continue
         items[method] = make_operation(rule, view_func)
-    items = {
-        method: make_operation(rule, view_functions.get(rule.endpoint, None))
-        for method, rule in method_rules.items()
-    }
+    for method, rule in method_rules.items():
+        view_func = view_functions.get(rule.endpoint, None)
+        if view_func:
+            items[method] = make_operation(rule, view_func)
     return PathItem(**items)
 
 
-def make_operation(rule: Rule, view_func: Optional[Callable]) -> Operation:
-    if not view_func:
-        return Operation()
+def make_operation(rule: Rule, view_func: Callable) -> Operation:
 
     sig = signature(view_func)
 
@@ -92,41 +94,37 @@ def make_operation(rule: Rule, view_func: Optional[Callable]) -> Operation:
         # this is path params
         if name in rule.arguments:
             parameters.append(
-                Parameter.parse_obj(
-                    dict(
-                        name=name,
-                        in_=ParameterInType.path,
-                        required=True,
-                        schema=Schema(type=_type.__name__),
-                    )
-                )
+                Parameter(name=name, in_=ParameterInType.path, required=True)
             )
         # this is request body params
         elif issubclass(_type, BaseModel):
             request_body_content["application/json"] = MediaType(
-                schema=Schema(**_type.schema())
+                schema=Reference(ref=f"#/components/schemas/{_type.__name__}")
             )
             request_body_required = True
         # this is query body
         else:
             parameters.append(
-                Parameter.parse_obj(
-                    dict(
-                        name=name,
-                        in_=ParameterInType.query,
-                        required=param.default is InspectParameter.empty,
-                        schema=Schema(type=_type.__name__),
-                    )
+                Parameter(
+                    name=name,
+                    in_=ParameterInType.query,
+                    required=param.default is InspectParameter.empty,
                 )
             )
-    req_body = RequestBody(content=request_body_content, required=request_body_required)
+
+    if not request_body_content:
+        req_body = None
+    else:
+        req_body = RequestBody(
+            content=request_body_content, required=request_body_required
+        )
 
     # make responses
     sig.return_annotation
     # TODO: rsp
     responses = {"200": Response(description="OK")}
     return Operation(
-        parameters=parameters,
+        parameters=parameters or None,
         requestBody=req_body,
         responses=responses,
     )

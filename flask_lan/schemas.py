@@ -1,22 +1,7 @@
-from typing import Any, Callable, ClassVar, Dict, Iterable, List, Optional, Union
+from enum import Enum
+from typing import Any, ClassVar, Dict, List, Optional, Union
 
-from pydantic import AnyUrl, BaseModel, Field
-
-try:
-    import email_validator  # type: ignore
-
-    assert email_validator  # make autoflake ignore the unused import
-    from pydantic import EmailStr
-except ImportError:  # pragma: no cover
-
-    class EmailStr(str):  # type: ignore
-        @classmethod
-        def __get_validators__(cls) -> Iterable[Callable[..., Any]]:
-            yield cls.validate
-
-        @classmethod
-        def validate(cls, v: Any) -> str:
-            return str(v)
+from pydantic import AnyUrl, BaseModel, EmailStr, Field
 
 
 class Contact(BaseModel):
@@ -39,6 +24,9 @@ class License(BaseModel):
 class Info(BaseModel):
     title: str
     description: Optional[str] = None
+    termsOfService: Optional[str] = None
+    contact: Optional[Contact] = None
+    license: Optional[License] = None
     version: str
 
     class Config:
@@ -65,6 +53,9 @@ class Server(BaseModel):
 
 class Reference(BaseModel):
     ref: str = Field(alias="$ref")
+
+    class Config:
+        allow_population_by_field_name = True
 
 
 class Discriminator(BaseModel):
@@ -131,6 +122,7 @@ class Schema(BaseModel):
 
     class Config:
         extra: str = "allow"
+        allow_population_by_field_name = True
 
 
 class Example(BaseModel):
@@ -144,10 +136,10 @@ class Example(BaseModel):
 
 
 class ParameterInType:
-    query: str = "query"
-    header: str = "header"
-    path: str = "path"
-    cookie: str = "cookie"
+    query = "query"
+    header = "header"
+    path = "path"
+    cookie = "cookie"
 
 
 class Encoding(BaseModel):
@@ -169,6 +161,7 @@ class MediaType(BaseModel):
 
     class Config:
         extra = "allow"
+        allow_population_by_field_name = True
 
 
 class ParameterBase(BaseModel):
@@ -187,12 +180,15 @@ class ParameterBase(BaseModel):
 
     class Config:
         extra = "allow"
-        arbitrary_types_allowed = True
+        allow_population_by_field_name = True
 
 
 class Parameter(ParameterBase):
     name: str
     in_: ClassVar[ParameterInType] = Field(alias="in")
+
+    class Config:
+        allow_population_by_field_name = True
 
 
 class Header(ParameterBase):
@@ -231,9 +227,19 @@ class Response(BaseModel):
 
 
 class Operation(BaseModel):
+    tags: Optional[List[str]] = None
+    summary: Optional[str] = None
+    description: Optional[str] = None
+    externalDocs: Optional[ExternalDocumentation] = None
+    operationId: Optional[str] = None
     parameters: Optional[List[Union[Parameter, Reference]]] = None
     requestBody: Optional[Union[RequestBody, Reference]] = None
-    responses: Dict[str, Union[Response, Any]] = None
+    # Using Any for Specification Extensions
+    responses: Dict[str, Union[Response, Any]]
+    callbacks: Optional[Dict[str, Union[Dict[str, "PathItem"], Reference]]] = None
+    deprecated: Optional[bool] = None
+    security: Optional[List[Dict[str, List[str]]]] = None
+    servers: Optional[List[Server]] = None
 
     class Config:
         extra = "allow"
@@ -256,10 +262,114 @@ class PathItem(BaseModel):
 
     class Config:
         extra = "allow"
+        allow_population_by_field_name = True
+
+
+class SecuritySchemeType(Enum):
+    apiKey = "apiKey"
+    http = "http"
+    oauth2 = "oauth2"
+    openIdConnect = "openIdConnect"
+
+
+class SecurityBase(BaseModel):
+    type_: SecuritySchemeType = Field(alias="type")
+    description: Optional[str] = None
+
+    class Config:
+        extra = "allow"
+
+
+class APIKeyIn(Enum):
+    query = "query"
+    header = "header"
+    cookie = "cookie"
+
+
+class APIKey(SecurityBase):
+    type_ = Field(SecuritySchemeType.apiKey, alias="type")
+    in_: APIKeyIn = Field(alias="in")
+    name: str
+
+
+class HTTPBase(SecurityBase):
+    type_ = Field(SecuritySchemeType.http, alias="type")
+    scheme: str
+
+
+class HTTPBearer(HTTPBase):
+    scheme = "bearer"
+    bearerFormat: Optional[str] = None
+
+
+class OAuthFlow(BaseModel):
+    refreshUrl: Optional[str] = None
+    scopes: Dict[str, str] = {}
+
+    class Config:
+        extra = "allow"
+
+
+class OAuthFlowImplicit(OAuthFlow):
+    authorizationUrl: str
+
+
+class OAuthFlowPassword(OAuthFlow):
+    tokenUrl: str
+
+
+class OAuthFlowClientCredentials(OAuthFlow):
+    tokenUrl: str
+
+
+class OAuthFlowAuthorizationCode(OAuthFlow):
+    authorizationUrl: str
+    tokenUrl: str
+
+
+class OAuthFlows(BaseModel):
+    implicit: Optional[OAuthFlowImplicit] = None
+    password: Optional[OAuthFlowPassword] = None
+    clientCredentials: Optional[OAuthFlowClientCredentials] = None
+    authorizationCode: Optional[OAuthFlowAuthorizationCode] = None
+
+    class Config:
+        extra = "allow"
+
+
+class OAuth2(SecurityBase):
+    type_ = Field(SecuritySchemeType.oauth2, alias="type")
+    flows: OAuthFlows
+
+
+class OpenIdConnect(SecurityBase):
+    type_ = Field(SecuritySchemeType.openIdConnect, alias="type")
+    openIdConnectUrl: str
+
+
+SecurityScheme = Union[APIKey, HTTPBase, OAuth2, OpenIdConnect, HTTPBearer]
 
 
 class Components(BaseModel):
     schemas: Optional[Dict[str, Union[Schema, Reference]]] = None
+    responses: Optional[Dict[str, Union[Response, Reference]]] = None
+    parameters: Optional[Dict[str, Union[Parameter, Reference]]] = None
+    examples: Optional[Dict[str, Union[Example, Reference]]] = None
+    requestBodies: Optional[Dict[str, Union[RequestBody, Reference]]] = None
+    headers: Optional[Dict[str, Union[Header, Reference]]] = None
+    securitySchemes: Optional[Dict[str, Union[SecurityScheme, Reference]]] = None
+    links: Optional[Dict[str, Union[Link, Reference]]] = None
+    # Using Any for Specification Extensions
+    callbacks: Optional[Dict[str, Union[Dict[str, PathItem], Reference, Any]]] = None
+
+    class Config:
+        extra = "allow"
+
+
+class Tag(BaseModel):
+    name: str
+    description: Optional[str] = None
+    externalDocs: Optional[ExternalDocumentation] = None
 
     class Config:
         extra = "allow"
@@ -268,8 +378,13 @@ class Components(BaseModel):
 class OpenAPI(BaseModel):
     openapi: str
     info: Info
+    servers: Optional[List[Server]] = None
+    # Using Any for Specification Extensions
     paths: Dict[str, Union[PathItem, Any]]
     components: Optional[Components] = None
+    security: Optional[List[Dict[str, List[str]]]] = None
+    tags: Optional[List[Tag]] = None
+    externalDocs: Optional[ExternalDocumentation] = None
 
     class Config:
         extra = "allow"
