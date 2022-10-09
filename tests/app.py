@@ -8,7 +8,7 @@ from flask_lan import Lan, validator
 app = Flask(__name__)
 app.config["TESTING"] = True
 
-Lan(app, "Book API")
+api = Lan(app, "Book API")
 
 
 class BookSchema(BaseModel):
