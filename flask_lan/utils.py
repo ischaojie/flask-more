@@ -2,6 +2,8 @@ import sys
 from inspect import Parameter, signature
 from typing import Callable
 
+from werkzeug.routing import Rule
+
 if sys.version_info >= (3, 10):
     from inspect import get_annotations
 
@@ -28,3 +30,14 @@ def is_f_param_required(f: Callable, param_name: str) -> bool:
     if not parameter:
         return False
     return parameter.default is parameter.empty
+
+
+def get_normalize_path(rule: Rule) -> str:
+    parts = []
+    for is_dynamic, data in rule._trace:
+        if is_dynamic:
+            parts.append(f"{{{data}}}")
+        else:
+            parts.append(data)
+    path = "".join(parts).lstrip("|")
+    return path

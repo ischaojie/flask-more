@@ -14,7 +14,7 @@ class Lan:
         version: str = "1.0",
         docs_url: str = "/swagger",
         redoc_url: str = "/redoc",
-        openapi_url: str = "/openapi",
+        openapi_url: str = "/openapi.json",
     ) -> None:
         self.title = title
         self.version = version
@@ -49,7 +49,7 @@ class Lan:
 
     def openapi(self):
         self.openapi_schema = gen_openapi_spec(
-            map=self.app.url_map,
+            routes=self.app.url_map,
             view_functions=self.app.view_functions,
             title=self.title,
             version=self.version,
