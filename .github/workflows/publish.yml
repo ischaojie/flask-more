@@ -23,7 +23,9 @@ jobs:
           hatch env create
 
       - name: Build package & docs
-        run: hatch run make build
+        run: |
+          hatch build
+          hatch run mkdocs build --clean
 
       - name: Publish
         run: |
