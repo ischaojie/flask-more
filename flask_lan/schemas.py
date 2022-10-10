@@ -1,16 +1,20 @@
 from enum import Enum
-from typing import Any, ClassVar, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
-from pydantic import AnyUrl, BaseModel, EmailStr, Field
+from pydantic import AnyUrl
+from pydantic import BaseModel as _BaseModel
+from pydantic import EmailStr, Field
+
+
+class BaseModel(_BaseModel):
+    class Config:
+        allow_population_by_field_name = True
 
 
 class Contact(BaseModel):
     name: Optional[str] = None
     url: Optional[AnyUrl] = None
     email: Optional[EmailStr] = None
-
-    class Config:
-        extra = "allow"
 
 
 class License(BaseModel):
@@ -53,9 +57,6 @@ class Server(BaseModel):
 
 class Reference(BaseModel):
     ref: str = Field(alias="$ref")
-
-    class Config:
-        allow_population_by_field_name = True
 
 
 class Discriminator(BaseModel):
@@ -122,7 +123,6 @@ class Schema(BaseModel):
 
     class Config:
         extra: str = "allow"
-        allow_population_by_field_name = True
 
 
 class Example(BaseModel):
@@ -161,14 +161,12 @@ class MediaType(BaseModel):
 
     class Config:
         extra = "allow"
-        allow_population_by_field_name = True
 
 
 class ParameterBase(BaseModel):
     description: Optional[str] = None
     required: Optional[bool] = None
     deprecated: Optional[bool] = None
-    # Serialization rules for simple scenarios
     style: Optional[str] = None
     explode: Optional[bool] = None
     allowReserved: Optional[bool] = None
@@ -180,15 +178,11 @@ class ParameterBase(BaseModel):
 
     class Config:
         extra = "allow"
-        allow_population_by_field_name = True
 
 
 class Parameter(ParameterBase):
     name: str
-    in_: ClassVar[ParameterInType] = Field(alias="in")
-
-    class Config:
-        allow_population_by_field_name = True
+    in_: str = Field(alias="in")
 
 
 class Header(ParameterBase):
@@ -262,7 +256,6 @@ class PathItem(BaseModel):
 
     class Config:
         extra = "allow"
-        allow_population_by_field_name = True
 
 
 class SecuritySchemeType(Enum):
@@ -379,7 +372,6 @@ class OpenAPI(BaseModel):
     openapi: str
     info: Info
     servers: Optional[List[Server]] = None
-    # Using Any for Specification Extensions
     paths: Dict[str, Union[PathItem, Any]]
     components: Optional[Components] = None
     security: Optional[List[Dict[str, List[str]]]] = None

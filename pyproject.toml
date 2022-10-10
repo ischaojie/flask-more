@@ -73,8 +73,8 @@ in-place = true
 remove-all-unused-imports = true
 
 [tool.mypy]
-show_error_codes = true
-ignore_missing_imports = true
 plugins = [
     "pydantic.mypy"
 ]
+show_error_codes = true
+ignore_missing_imports = true

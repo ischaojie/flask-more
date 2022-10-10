@@ -21,10 +21,16 @@ from flask_lan.schemas import (
     Response,
     Schema,
 )
+from flask_lan.utils import get_normalize_path
+
+# The route paths should been excluded when generator openapi spc
+EXCLUDE_PATH = ("/swagger", "/openapi.json", "/redoc")
+
+SUPPORT_HTTP_METHOD = ("GET", "POST", "PUT", "DELETE")
 
 
 def gen_openapi_spec(
-    map: Map,
+    routes: Map,
     view_functions: Dict[str, Callable],
     title: str,
     version: str,
@@ -37,18 +43,23 @@ def gen_openapi_spec(
     title: openapi title
     version: current api version
     """
-    exclude_path = ("/swagger", "/openapi", "/redoc")
 
     info = Info(title=title, description=desc, version=version)
 
     paths_with_rules: Dict[str, Dict[str, Rule]] = {}
-    for rule in map.iter_rules():
-        path = rule.rule
-        if path in exclude_path:
+    for rule in routes.iter_rules():
+        path = get_normalize_path(rule)
+        if path in EXCLUDE_PATH:
             continue
-        # TODO: support more http methods
+
         methods_with_rule = (
-            {method.lower(): rule for method in rule.methods} if rule.methods else {}
+            {
+                method.lower(): rule
+                for method in rule.methods
+                if method in SUPPORT_HTTP_METHOD
+            }
+            if rule.methods
+            else {}
         )
         paths_with_rules.setdefault(path, methods_with_rule).update(methods_with_rule)
     paths = {
@@ -56,7 +67,7 @@ def gen_openapi_spec(
         for path, method_rules in paths_with_rules.items()
     }
 
-    components = Components(schemas=make_schemas(map.iter_rules(), view_functions))
+    components = Components(schemas=make_schemas(routes.iter_rules(), view_functions))
     return OpenAPI(
         openapi=openapi_version,
         info=info,
@@ -86,7 +97,7 @@ def make_operation(rule: Rule, view_func: Callable) -> Operation:
     sig = signature(view_func)
 
     # make params
-    parameters = []
+    parameters: List[Parameter] = []
     request_body_content = {}
     request_body_required = False
     for name, param in sig.parameters.items():
@@ -99,7 +110,7 @@ def make_operation(rule: Rule, view_func: Callable) -> Operation:
         # this is request body params
         elif issubclass(_type, BaseModel):
             request_body_content["application/json"] = MediaType(
-                schema=Reference(ref=f"#/components/schemas/{_type.__name__}")
+                schema_=Reference(ref=f"#/components/schemas/{_type.__name__}")
             )
             request_body_required = True
         # this is query body
@@ -120,7 +131,7 @@ def make_operation(rule: Rule, view_func: Callable) -> Operation:
         )
 
     # make responses
-    sig.return_annotation
+    # sig.return_annotation
     # TODO: rsp
     responses = {"200": Response(description="OK")}
     return Operation(
