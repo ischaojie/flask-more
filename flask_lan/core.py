@@ -1,6 +1,7 @@
 from typing import Optional
 
-from flask import Flask, jsonify, render_template_string
+from flask import Flask, json, jsonify, render_template_string
+from werkzeug.exceptions import HTTPException
 
 from flask_lan.openapi import gen_openapi_spec
 from flask_lan.templates import redoc_template, swagger_template
@@ -27,12 +28,13 @@ class Lan:
             self.init_app(app)
 
     def init_app(self, app: Flask):
-        # register docs router
+
+        self.app.register_error_handler(HTTPException, self.handle_exception)
+
         if self.docs_url:
             app.add_url_rule(self.docs_url, view_func=self.swagger)
         if self.redoc_url:
             app.add_url_rule(self.redoc_url, view_func=self.redoc)
-        # register openapi router
         if self.openapi_url:
             app.add_url_rule(self.openapi_url, view_func=self.openapi)
 
@@ -57,3 +59,10 @@ class Lan:
         )
         schema = self.openapi_schema.dict(by_alias=True, exclude_defaults=True)
         return jsonify(schema)
+
+    def handle_exception(self, e):
+        rsp = e.get_response()
+        print(rsp)
+        rsp.data = json.dumps({"detail": e.description})
+        rsp.content_type = "application/json"
+        return rsp
