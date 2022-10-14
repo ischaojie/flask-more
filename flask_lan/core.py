@@ -38,9 +38,6 @@ class Lan:
         if self.openapi_url:
             app.add_url_rule(self.openapi_url, view_func=self.openapi)
 
-    def init_template_engine(self):
-        pass
-
     def swagger(self):
         context = {"title": self.title}
         return render_template_string(swagger_template, **context)

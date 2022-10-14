@@ -1,14 +1,15 @@
 from functools import partial, wraps
-from typing import Callable
+from inspect import signature
+from typing import Callable, Optional
 
 from flask import jsonify, request
 from pydantic import BaseModel, ValidationError, parse_obj_as
 
-from flask_lan.utils import get_f_annotations, get_f_defaults
+from flask_lan.utils import get_f_defaults
 
 
 def validator(
-    f: Callable = None,
+    f: Optional[Callable] = None,
     *,
     rsp_model=None,
     status: int = 200,
@@ -21,30 +22,35 @@ def validator(
 
         errors = {"details": []}
 
+        sig = signature(f)
+
         # all validated func params
         validated = {}
 
         # func default params
         f_defaults = dict(get_f_defaults(f))
 
-        # current view func's url rule args
-        current_f_path_params = request.url_rule.arguments
+        current_f_path_params = request.url_rule and request.url_rule.arguments
 
-        for name, type_ in get_f_annotations(f).items():
+        for name, param in sig.parameters.items():
+            _type = param.annotation
+
             # validate path params
-            if name in current_f_path_params:
+            if current_f_path_params and name in current_f_path_params:
                 try:
-                    value = parse_obj_as(type_, kwargs.get(name))
+                    value = parse_obj_as(_type, kwargs.get(name))
                     validated[name] = value
                 except ValidationError as e:
                     for err in e.errors():
                         err["loc"] = ("path", name)
                         errors["details"].append(err)
-            elif issubclass(type_, BaseModel):
-                # validate request body
-                body_params = request.get_json()
+            # validate request body
+            elif issubclass(_type, BaseModel):
+                body_params = request.get_json(force=True, silent=True)
+                if body_params is None:
+                    body_params = request.form
                 try:
-                    value = body_params and type_(**body_params) or type_()
+                    value = body_params and _type(**body_params) or _type()
                     validated[name] = value
                 except ValidationError as e:
                     for err in e.errors():
@@ -52,10 +58,9 @@ def validator(
                         errors["details"].append(err)
             else:
                 # validate request query params
-                # get from request args or default value
                 query_param = request.args.get(name, f_defaults.get(name))
                 try:
-                    value = parse_obj_as(type_, query_param)
+                    value = parse_obj_as(_type, query_param)
                     validated[name] = value
                 except ValidationError as e:
                     for err in e.errors():

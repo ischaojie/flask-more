@@ -65,7 +65,7 @@ check = [
     "flake8 flask_lan tests --max-line-length=90",
     "black --check --diff flask_lan tests",
     "isort --check-only --diff flask_lan tests",
-    "mypy flask_lan tests"
+    "mypy flask_lan"
 ]
 lint = [
     "autoflake -r flask_lan tests",
