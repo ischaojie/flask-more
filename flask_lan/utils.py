@@ -1,18 +1,7 @@
-import sys
 from inspect import Parameter, signature
 from typing import Callable
 
 from werkzeug.routing import Rule
-
-if sys.version_info >= (3, 10):
-    from inspect import get_annotations
-
-
-def get_f_annotations(f):
-    try:
-        return get_annotations(f)
-    except NameError:
-        return f.__annotations__
 
 
 def get_f_defaults(f: Callable):
