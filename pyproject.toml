@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "Flask-Lan"
-description = "Flask-Lan is a modernized api suite with schema validator and auto docs"
+description = "Flask-Lan is a modernized api builder with validator and openapi"
 dynamic = ["version"]
 authors = [
     { name = "chaojie", email = "zhuzhezhe95@gmail.com" },
@@ -40,7 +40,7 @@ classifiers = [
 ]
 
 [project.urls]
-Documentation = "https://ischaojie.github.io/flask-lan/"
+Documentation = "https://flask-lan.chaojie.fun"
 Source = "https://github.com/ischaojie/flask-lan"
 
 [tool.hatch.version]
