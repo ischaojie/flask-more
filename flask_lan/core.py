@@ -13,7 +13,7 @@ class Lan:
         app: Optional[Flask] = None,
         title: str = "API Docs",
         version: str = "1.0",
-        docs_url: str = "/swagger",
+        docs_url: str = "/docs",
         redoc_url: str = "/redoc",
         openapi_url: str = "/openapi.json",
     ) -> None:
@@ -32,13 +32,13 @@ class Lan:
         self.app.register_error_handler(HTTPException, self.handle_exception)
 
         if self.docs_url:
-            app.add_url_rule(self.docs_url, view_func=self.swagger)
+            app.add_url_rule(self.docs_url, view_func=self.docs)
         if self.redoc_url:
             app.add_url_rule(self.redoc_url, view_func=self.redoc)
         if self.openapi_url:
             app.add_url_rule(self.openapi_url, view_func=self.openapi)
 
-    def swagger(self):
+    def docs(self):
         context = {"title": self.title}
         return render_template_string(swagger_template, **context)
 

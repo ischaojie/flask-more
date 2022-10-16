@@ -9,18 +9,19 @@
 Modernized Flask API builder with schema validator and OpenAPI.
 
 ### Warning
-> 
+>
 > Currently, `Flask-Lan` is still under active development(before v1.0.0). Don't use it in production.
 
-It's kind of like the famous library [FastAPI](https://github.com/tiangolo/fastapi), bringing part of brilliant features of `FastAPI` to your Flask application.
-For example, it uses [Pydantic](https://github.com/samuelcolvin/pydantic) for Request/Response params validation 
-and auto-generates `OpenAPI` api docs.
+FLask-Lan is kind of like the famous library [FastAPI](https://github.com/tiangolo/fastapi), bringing part of the brilliant features of `FastAPI` to your Flask application.
+For example, it uses [Pydantic](https://github.com/samuelcolvin/pydantic) for Request/Response params validation
+and auto-generates `OpenAPI` API docs.
 
 ## Feature
 
 -   Intuitive and easy to use.
--   Request/Response validation base on type hinting(by Pydantic).
--   Auto-generate `OpenAPI` docs(both swagger and redoc).
+-   Request/Response validation based on type hinting(by Pydantic).
+-   Auto-generated `OpenAPI` docs(both swagger and redoc).
+-   Designed for API development.
 
 ## Quick start
 
@@ -34,7 +35,7 @@ A simple example:
 from flask import Flask
 from pydantic import BaseModel
 
-from flask_lan import Lan, validator
+from flask_lan import Lan, api
 
 app = Flask(__name__)
 
@@ -46,16 +47,20 @@ class BookSchema(BaseModel):
     price: float
 
 @app.get("/books/<id>")
-@validator
+@api(tags=["book"], summary="book example")
 def example(id: int, hi: str, book: BookSchema):
-    return book.dict()
+    return {"id": id, "hi": hi, "book": book.dict()}
 
 if __name__ == "__main__":
     app.run(debug=True)
 
 
 ```
-Then open `http://127.0.0.1:5000/swagger` you will seen the api docs.
+Then open `http://127.0.0.1:5000/docs` you will see the API docs like this:
+
+![api-docs](/assets/docs.png)
+
+Read the [docs](https://flask-lan.chaojie.fun/) to get more details.
 
 ## License
 

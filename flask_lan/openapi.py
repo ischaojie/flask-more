@@ -1,9 +1,7 @@
-from functools import partial, wraps
 from inspect import Parameter as InspectParameter
 from inspect import signature
 from typing import Callable, Dict, Iterator, List, Optional, Union
 
-from flask import current_app, request
 from pydantic import BaseModel
 from werkzeug.routing import Map, Rule
 
@@ -24,7 +22,7 @@ from flask_lan.schemas import (
 from flask_lan.utils import get_normalize_path
 
 # The route paths should been excluded when generator openapi spc
-EXCLUDE_PATH = ("/swagger", "/openapi.json", "/redoc")
+EXCLUDE_PATH = ("/docs", "/openapi.json", "/redoc")
 
 SUPPORT_HTTP_METHOD = ("GET", "POST", "PUT", "DELETE")
 
@@ -96,6 +94,8 @@ def make_operation(rule: Rule, view_func: Callable) -> Operation:
 
     sig = signature(view_func)
 
+    api_desc = getattr(view_func, "__openapi__", {})
+
     # make params
     parameters: List[Parameter] = []
     request_body_content = {}
@@ -133,8 +133,12 @@ def make_operation(rule: Rule, view_func: Callable) -> Operation:
     # make responses
     # sig.return_annotation
     # TODO: rsp
-    responses = {"200": Response(description="OK")}
+    responses = {"200": Response(description=api_desc.get("response_description", ""))}
+
     return Operation(
+        tags=api_desc.get("tags", None),
+        summary=api_desc.get("summary", None),
+        description=api_desc.get("description", None),
         parameters=parameters or None,
         requestBody=req_body,
         responses=responses,
@@ -154,34 +158,3 @@ def make_schemas(rules: Iterator[Rule], view_functions: Dict[str, Callable]):
                 schemas[_type.__name__] = Schema(**_type.schema())
 
     return schemas
-
-
-def docs(
-    f: Callable,
-    *,
-    tags: Optional[List[str]] = None,
-    summary: Optional[str] = None,
-    desc: Optional[str] = None,
-):
-    """docs decorator"""
-    if f is None:
-        return partial(docs, tags=tags)
-
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        r = f(*args, **kwargs)
-        config = current_app.extensions.get("lan", {})
-        url_rule = request.url_rule
-        if url_rule:
-            doc_schema = {
-                "tags": tags,
-                "summary": summary,
-                "description": desc,
-                "operationId": url_rule.endpoint,
-            }
-            config.setdefault(url_rule.endpoint, {}).update(url_rule.endpoint, doc_schema)
-        current_app.extensions["lan"] = config
-
-        return r
-
-    return wrapper

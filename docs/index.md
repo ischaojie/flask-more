@@ -1,73 +1,66 @@
-# Overview
+# Flask-Lan
 
-`flask-lan` is a schema validator and swagger generator but more modernized.
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ischaojie/flask-lan/CI?style=flat-square)
+![Codecov](https://img.shields.io/codecov/c/github/ischaojie/flask-lan?style=flat-square)
+![PyPI](https://img.shields.io/pypi/v/flask-lan?style=flat-square)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/flask-lan?style=flat-square)
+![GitHub](https://img.shields.io/github/license/ischaojie/flask-lan?style=flat-square)
 
-!!! Warning
+Modernized Flask API builder with schema validator and OpenAPI.
 
-    Currently, `flask-lan` is still under active development(before verion 1.0.0). Don't use it in production.
+### Warning
+>
+> Currently, `Flask-Lan` is still under active development(before v1.0.0). Don't use it in production.
 
-It's kind of like the famous library `FastAPI`, bringing part of brilliant features of `FastAPI` to your Flask application.
-For example, it uses [Pydantic](https://github.com/samuelcolvin/pydantic) for Request/Response params validation and auto-generates `swagger` docs.
+FLask-Lan is kind of like the famous library [FastAPI](https://github.com/tiangolo/fastapi), bringing part of the brilliant features of `FastAPI` to your Flask application.
+For example, it uses [Pydantic](https://github.com/samuelcolvin/pydantic) for Request/Response params validation
+and auto-generates `OpenAPI` API docs.
 
 ## Feature
 
 -   Intuitive and easy to use.
--   Use type hinting to validate request/response params.
--   Auto-generate `swagger` docs.
+-   Request/Response validation based on type hinting(by Pydantic).
+-   Auto-generated `OpenAPI` docs(both swagger and redoc).
+-   Designed for API development.
 
-## Install
-
-Installation is as simple as:
+## Quick start
 
 ```bash
-pip install flask-lan
+pip install Flask-Lan
 ```
 
-## Example
+A simple example:
 
 ```python
 from flask import Flask
 from pydantic import BaseModel
-from flask_lan import validator
+
+from flask_lan import Lan, api
 
 app = Flask(__name__)
+
+Lan(app, "Book API")
 
 
 class BookSchema(BaseModel):
     title: str
-    author: str
     price: float
-    year: int
 
-
-@app.get("/books/")
-@validator
-def query_book(title: str, start: int = 0, limit: int = 10):
-    pass
-
-
-@app.get("/books/<id>/")
-@validator(rsp_model=BookSchema)
-def get_book(id: int):
-    pass
-
-
-@app.post("/books/")
-@validator
-def create_book(book: BookSchema):
-    pass
-
+@app.get("/books/<id>")
+@api(tags=["book"], summary="book example")
+def example(id: int, hi: str, book: BookSchema):
+    return {"id": id, "hi": hi, "book": book.dict()}
 
 if __name__ == "__main__":
     app.run(debug=True)
 
+
 ```
+Then open `http://127.0.0.1:5000/docs` you will see the API docs like this:
 
-Try this in your editor, and use view function's params for your work.
+![api-docs](/assets/docs.png)
 
-## Thanks
-
-`flask-lan` is based on [flask](https://github.com/pallets/flask) and [pydantic](https://github.com/samuelcolvin/pydantic), thanks all of them's fantastic work.
+Read the [docs](https://flask-lan.chaojie.fun/) to get more details.
 
 ## License
 
