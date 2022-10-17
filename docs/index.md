@@ -1,20 +1,22 @@
 # Flask-Lan
 
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ischaojie/flask-lan/CI?style=flat-square)
-![Codecov](https://img.shields.io/codecov/c/github/ischaojie/flask-lan?style=flat-square)
-![PyPI](https://img.shields.io/pypi/v/flask-lan?style=flat-square)
+[![codecov](https://codecov.io/gh/ischaojie/flask-lan/branch/main/graph/badge.svg?token=FPBE0LGDCO)](https://codecov.io/gh/ischaojie/flask-lan)
+[![PyPI](https://img.shields.io/pypi/v/flask-lan?style=flat-square)](https://pypi.org/project/Flask-Lan/)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/flask-lan?style=flat-square)
 ![GitHub](https://img.shields.io/github/license/ischaojie/flask-lan?style=flat-square)
 
 Modernized Flask API builder with schema validator and OpenAPI.
 
-### Warning
->
-> Currently, `Flask-Lan` is still under active development(before v1.0.0). Don't use it in production.
+!!!Warning
+Currently, `Flask-Lan` is still under active development(before v1.0.0).
 
-FLask-Lan is kind of like the famous library [FastAPI](https://github.com/tiangolo/fastapi), bringing part of the brilliant features of `FastAPI` to your Flask application.
-For example, it uses [Pydantic](https://github.com/samuelcolvin/pydantic) for Request/Response params validation
-and auto-generates `OpenAPI` API docs.
+    Don't use it in production.
+
+Flask-Lan is kind of like the famous library [FastAPI](https://github.com/tiangolo/fastapi), bringing part of its brilliant features to your Flask application, you can see a lot of similarities between the two.
+
+For example, it uses [Pydantic](https://github.com/samuelcolvin/pydantic) for request and response validation,
+it will auto-generate `OpenAPI` API docs and so on.
 
 ## Feature
 
@@ -26,41 +28,13 @@ and auto-generates `OpenAPI` API docs.
 ## Quick start
 
 ```bash
-pip install Flask-Lan
+python -m pip install Flask-Lan
 ```
 
-A simple example:
+You can view and run the code in the [example](https://github.com/ischaojie/flask-lan/blob/main/example/app.py) file.
+Then open [http://127.0.0.1:5000/docs](http://127.0.0.1:5000/docs) you will see the API docs like this:
 
-```python
-from flask import Flask
-from pydantic import BaseModel
-
-from flask_lan import Lan, api
-
-app = Flask(__name__)
-
-Lan(app, "Book API")
-
-
-class BookSchema(BaseModel):
-    title: str
-    price: float
-
-@app.get("/books/<id>")
-@api(tags=["book"], summary="book example")
-def example(id: int, hi: str, book: BookSchema):
-    return {"id": id, "hi": hi, "book": book.dict()}
-
-if __name__ == "__main__":
-    app.run(debug=True)
-
-
-```
-Then open `http://127.0.0.1:5000/docs` you will see the API docs like this:
-
-![api-docs](/assets/docs.png)
-
-Read the [docs](https://flask-lan.chaojie.fun/) to get more details.
+![docs](assets/docs.png)
 
 ## License
 
