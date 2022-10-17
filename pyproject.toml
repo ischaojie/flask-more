@@ -53,10 +53,11 @@ dependencies = [
     "mypy",
     "black",
     "isort",
+    "autoflake",
     "pytest-cov",
     "mkdocs",
     "mkdocs-material",
-    "autoflake",
+    "mkdocstrings[python]>=0.18"
 ]
 
 [tool.hatch.envs.default.scripts]

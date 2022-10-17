@@ -28,3 +28,16 @@ markdown_extensions:
   - admonition
   - pymdownx.details
   - pymdownx.superfences
+
+watch:
+- flask_lan
+- example
+
+plugins:
+- mkdocstrings:
+    default_handler: python
+    handlers:
+      python:
+        options:
+          show_source: true
+
