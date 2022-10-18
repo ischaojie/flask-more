@@ -1,5 +1,5 @@
 from inspect import signature
-from typing import Any, Callable, Dict, Tuple
+from typing import Any, Callable, Dict, List, Tuple
 
 from flask import request
 from pydantic import BaseModel, ValidationError, parse_obj_as
@@ -9,8 +9,8 @@ from flask_lan.utils import get_f_defaults
 
 def validator(
     f: Callable,
-    *f_args,
-    **f_kwargs,
+    *f_args: List,
+    **f_kwargs: Dict,
 ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     errors: Dict[str, Any] = {"details": []}
 

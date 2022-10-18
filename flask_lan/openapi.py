@@ -145,7 +145,9 @@ def make_operation(rule: Rule, view_func: Callable) -> Operation:
     )
 
 
-def make_schemas(rules: Iterator[Rule], view_functions: Dict[str, Callable]):
+def make_schemas(
+    rules: Iterator[Rule], view_functions: Dict[str, Callable]
+) -> Dict[str, Union[Schema, Reference]]:
     schemas: Dict[str, Union[Schema, Reference]] = {}
     for rule in rules:
         view_func = view_functions.get(rule.endpoint, None)
