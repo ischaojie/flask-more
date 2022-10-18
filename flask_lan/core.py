@@ -1,6 +1,6 @@
-from typing import Optional
+from typing import Optional, cast
 
-from flask import Flask, json, jsonify, render_template_string
+from flask import Flask, Response, json, jsonify, render_template_string
 from werkzeug.exceptions import HTTPException
 
 from flask_lan.openapi import gen_openapi_spec
@@ -27,7 +27,7 @@ class Lan:
             self.app = app
             self.init_app(app)
 
-    def init_app(self, app: Flask):
+    def init_app(self, app: Flask) -> None:
 
         self.app.register_error_handler(HTTPException, self.handle_exception)
 
@@ -38,15 +38,15 @@ class Lan:
         if self.openapi_url:
             app.add_url_rule(self.openapi_url, view_func=self.openapi)
 
-    def docs(self):
+    def docs(self) -> str:
         context = {"title": self.title}
         return render_template_string(swagger_template, **context)
 
-    def redoc(self):
+    def redoc(self) -> str:
         context = {"title": self.title}
         return render_template_string(redoc_template, **context)
 
-    def openapi(self):
+    def openapi(self) -> Response:
         self.openapi_schema = gen_openapi_spec(
             routes=self.app.url_map,
             view_functions=self.app.view_functions,
@@ -57,9 +57,8 @@ class Lan:
         schema = self.openapi_schema.dict(by_alias=True, exclude_defaults=True)
         return jsonify(schema)
 
-    def handle_exception(self, e):
-        rsp = e.get_response()
-        print(rsp)
+    def handle_exception(self, e: HTTPException) -> Response:
+        rsp = cast(Response, e.get_response())
         rsp.data = json.dumps({"detail": e.description})
         rsp.content_type = "application/json"
         return rsp

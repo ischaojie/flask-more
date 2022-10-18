@@ -1,9 +1,9 @@
 from enum import Enum
 from functools import partial, wraps
-from typing import Callable, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 from flask import jsonify
-from pydantic import ValidationError
+from pydantic import BaseModel
 
 from flask_lan.validate import validator
 
@@ -11,13 +11,13 @@ from flask_lan.validate import validator
 def api(
     f: Optional[Callable] = None,
     *,
-    rsp_model=None,
+    rsp_model: Optional[BaseModel] = None,
     status: int = 200,
     tags: Optional[List[Union[str, Enum]]] = None,
     summary: Optional[str] = None,
     description: Optional[str] = None,
     response_description: str = "Successful Response",
-):
+) -> Any:
     if f is None:
         return partial(
             api,
@@ -38,23 +38,15 @@ def api(
     setattr(f, "__openapi__", api_desc)
 
     @wraps(f)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: List, **kwargs: Dict) -> Any:
 
-        errors, validated = validator(f, *args, **kwargs)
+        errors, validated = validator(f, *args, **kwargs)  # type: ignore
         if errors["details"]:
             return jsonify(errors), 400
 
         kwargs = {**kwargs, **validated}
 
-        r = f(*args, **kwargs)
-
-        # covert response to json
-        if rsp_model:
-            try:
-                r = rsp_model(**r)
-                return jsonify(r), status
-            except ValidationError as e:
-                return e.json(), 400
+        r = f(*args, **kwargs)  # type: ignore
 
         return r, status
 
