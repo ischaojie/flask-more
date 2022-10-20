@@ -22,7 +22,7 @@ repo_url: https://github.com/ischaojie/flask-lan
 
 nav:
   - Overview: index.md
-  - Intro: intro.md
+  - API Decorator: api.md
 
 markdown_extensions:
   - admonition
