@@ -23,9 +23,14 @@ Lan(
 )
 
 
+class Author(BaseModel):
+    name: str
+
+
 class BookSchema(BaseModel):
     title: str
     price: float
+    author: Author
 
     class Config:
         schema_extra = {
@@ -38,7 +43,7 @@ class BookSchema(BaseModel):
 
 class MovieSchema(BaseModel):
     title: str
-    actor: str
+    director: str
 
 
 class RspSchema(BaseModel):
@@ -80,13 +85,13 @@ def echo_query(name: str, age: int = 18):
 @app.post("/echo_body")
 @api
 def echo_body(book: BookSchema):
-    return dict(book)
+    return {"title": book.title, "price": book.price, "author": dict(book.author)}
 
 
 @app.post("/echo_body_2")
 @api
 def echo_body_2(movie: MovieSchema):
-    return dict(movie)
+    return {"title": movie.title, "director": movie.director}
 
 
 @app.get("/echo_path_and_query/<id>")

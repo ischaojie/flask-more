@@ -17,6 +17,7 @@ def validator(
     sig = signature(f)
 
     # all validated func params
+    # FIXME: where pydantic can't serialize Model to pure dict
     validated: Dict[str, Any] = {}
 
     # func default params
@@ -40,6 +41,7 @@ def validator(
         elif issubclass(_type, BaseModel):
             body_params = request.get_json(force=True, silent=True)
             if body_params is None:
+                # TODO: support form values with string structured data.
                 body_params = request.form
             try:
                 value = body_params and _type(**body_params) or _type()

@@ -47,7 +47,14 @@ def test_invalidate_query(client: FlaskClient):
 
 
 def test_validate_body(client: FlaskClient):
-    rsp = client.post("/echo_body", json={"title": "test", "price": 1.0})
+    rsp = client.post(
+        "/echo_body",
+        json={
+            "title": "test",
+            "price": 1.0,
+            "author": {"name": "chaojie"},
+        },
+    )
     assert rsp.status_code == 200
     assert rsp.json["title"] == "test"
     assert rsp.json["price"] == 1.0
@@ -59,7 +66,14 @@ def test_validate_body_empty(client: FlaskClient):
 
 
 def test_invalid_body(client: FlaskClient):
-    rsp = client.post("/echo_body", json={"title": "test", "price": "invalid"})
+    rsp = client.post(
+        "/echo_body",
+        json={
+            "title": "test",
+            "price": "invalid",
+            "author": {"name": "chaojie"},
+        },
+    )
     assert rsp.status_code == 400
     assert "price" in rsp.json["details"][0]["loc"]
     rsp = client.post("/echo_body")
@@ -67,9 +81,23 @@ def test_invalid_body(client: FlaskClient):
 
 
 def test_body_with_form(client: FlaskClient):
-    data = {"title": "test", "price": 1.0}
-    rsp = client.post("/echo_body", data=data)
+    data = {
+        "title": "test",
+        "director": "chaojie",
+    }
+    rsp = client.post("/echo_body_2", data=data)
     assert rsp.status_code == 200
+
+
+def test_body_with_nested_form(client: FlaskClient):
+    data = {
+        "title": "test",
+        "price": 11.2,
+        "author": str({"name": "chaojie"}),
+    }
+    rsp = client.post("/echo_body", data=data)
+    print(rsp.data)
+    assert rsp.status_code == 400
 
 
 def test_validate_path_and_query(client: FlaskClient):
