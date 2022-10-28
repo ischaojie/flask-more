@@ -1,9 +1,10 @@
-from typing import Optional, cast
+from typing import Any, Dict, List, Optional, Union, cast
 
 from flask import Flask, Response, json, jsonify, render_template_string
 from werkzeug.exceptions import HTTPException
 
 from flask_lan.openapi import gen_openapi_spec
+from flask_lan.schemas import OpenAPI
 from flask_lan.templates import redoc_template, swagger_template
 
 
@@ -13,15 +14,27 @@ class Lan:
         app: Optional[Flask] = None,
         title: str = "API Docs",
         version: str = "1.0",
+        description: str = "",
         docs_url: str = "/docs",
         redoc_url: str = "/redoc",
         openapi_url: str = "/openapi.json",
+        openapi_tags: Optional[List[Dict[str, Any]]] = None,
+        terms_of_service: Optional[str] = None,
+        contact: Optional[Dict[str, Union[str, Any]]] = None,
+        license_info: Optional[Dict[str, Union[str, Any]]] = None,
     ) -> None:
         self.title = title
         self.version = version
+        self.description = description
         self.docs_url = docs_url
         self.redoc_url = redoc_url
         self.openapi_url = openapi_url
+        self.openapi_tags = openapi_tags
+        self.terms_of_service = terms_of_service
+        self.contact = contact
+        self.license_info = license_info
+
+        self.openapi_schema: Optional[OpenAPI] = None
 
         if app is not None:
             self.app = app
@@ -52,7 +65,11 @@ class Lan:
             view_functions=self.app.view_functions,
             title=self.title,
             version=self.version,
-            desc="",
+            description=self.description,
+            terms_of_service=self.terms_of_service,
+            contact=self.contact,
+            license_info=self.license_info,
+            openapi_tags=self.openapi_tags,
         )
         schema = self.openapi_schema.dict(by_alias=True, exclude_defaults=True)
         return jsonify(schema)

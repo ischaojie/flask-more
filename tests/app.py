@@ -8,12 +8,37 @@ from flask_lan import Lan, api
 app = Flask(__name__)
 app.config["TESTING"] = True
 
-Lan(app, "Book API")
+Lan(
+    app,
+    title="Book API",
+    version="1.1.1",
+    description="The book api docs",
+    terms_of_service="https://chaojie.fun",
+    contact={"name": "chaojie", "url": "https://chaojie.fun", "email": "hi@chaojie.fun"},
+    license_info={"name": "MIT"},
+    openapi_tags=[
+        {"name": "test", "description": "This is test"},
+        {"name": "echo_path", "description": "This is echo path"},
+    ],
+)
 
 
 class BookSchema(BaseModel):
     title: str
     price: float
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "title": "Foo",
+                "price": 35.4,
+            }
+        }
+
+
+class MovieSchema(BaseModel):
+    title: str
+    actor: str
 
 
 class RspSchema(BaseModel):
@@ -56,6 +81,12 @@ def echo_query(name: str, age: int = 18):
 @api
 def echo_body(book: BookSchema):
     return dict(book)
+
+
+@app.post("/echo_body_2")
+@api
+def echo_body_2(movie: MovieSchema):
+    return dict(movie)
 
 
 @app.get("/echo_path_and_query/<id>")
