@@ -3,6 +3,7 @@ from inspect import signature
 from typing import Any, Callable, Dict, Iterator, List, Optional, Union
 
 from pydantic import BaseModel
+from pydantic.schema import schema
 from werkzeug.routing import Map, Rule
 
 from flask_lan.schemas import (
@@ -161,7 +162,7 @@ def make_operation(rule: Rule, view_func: Callable) -> Operation:
 def make_schemas(
     rules: Iterator[Rule], view_functions: Dict[str, Callable]
 ) -> Dict[str, Union[Schema, Reference]]:
-    schemas: Dict[str, Union[Schema, Reference]] = {}
+    _schemas = []
     for rule in rules:
         view_func = view_functions.get(rule.endpoint, None)
         if not view_func:
@@ -170,6 +171,8 @@ def make_schemas(
         for _, param in sig.parameters.items():
             _type = param.annotation
             if issubclass(_type, BaseModel):
-                schemas[_type.__name__] = Schema(**_type.schema())
+                _schemas.append(_type)
+
+    schemas = schema(_schemas, ref_prefix="#/components/schemas/").get("definitions", {})
 
     return schemas

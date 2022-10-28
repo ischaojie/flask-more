@@ -19,6 +19,15 @@ def test_openapi_spec(client: FlaskClient):
     assert echo.get.tags == ["test"]
 
 
+def test_openapi_nested_schemas(client: FlaskClient):
+    rsp = client.get("/openapi.json")
+    openapi = OpenAPI.parse_obj(rsp.json)
+
+    all_schemas = ["Author", "BookSchema", "MovieSchema"]
+    for schema in openapi.components.schemas.keys():
+        assert schema in all_schemas
+
+
 def test_docs(client: FlaskClient):
     rsp = client.get("/docs")
     assert rsp.status_code == 200
