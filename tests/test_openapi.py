@@ -19,7 +19,7 @@ def test_openapi_spec(client: FlaskClient):
     assert echo.get.tags == ["test"]
 
 
-def test_swagger(client: FlaskClient):
+def test_docs(client: FlaskClient):
     rsp = client.get("/docs")
     assert rsp.status_code == 200
 

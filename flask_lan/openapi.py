@@ -1,13 +1,15 @@
 from inspect import Parameter as InspectParameter
 from inspect import signature
-from typing import Callable, Dict, Iterator, List, Optional, Union
+from typing import Any, Callable, Dict, Iterator, List, Optional, Union
 
 from pydantic import BaseModel
 from werkzeug.routing import Map, Rule
 
 from flask_lan.schemas import (
     Components,
+    Contact,
     Info,
+    License,
     MediaType,
     OpenAPI,
     Operation,
@@ -18,6 +20,7 @@ from flask_lan.schemas import (
     RequestBody,
     Response,
     Schema,
+    Tag,
 )
 from flask_lan.utils import get_normalize_path
 
@@ -33,16 +36,22 @@ def gen_openapi_spec(
     title: str,
     version: str,
     openapi_version: str = "3.0.2",
-    desc: Optional[str] = None,
+    openapi_tags: Optional[List[Dict[str, Any]]] = None,
+    description: str = "",
+    terms_of_service: Optional[str] = None,
+    contact: Optional[Dict[str, Union[str, Any]]] = None,
+    license_info: Optional[Dict[str, Union[str, Any]]] = None,
 ) -> OpenAPI:
-    """
-    Generate openapi specification schema
+    """Generate openapi specification schema"""
 
-    title: openapi title
-    version: current api version
-    """
-
-    info = Info(title=title, description=desc, version=version)
+    info = Info(
+        title=title,
+        description=description,
+        version=version,
+        termsOfService=terms_of_service and terms_of_service,
+        contact=contact and Contact(**contact),
+        license=license_info and License(**license_info),
+    )
 
     paths_with_rules: Dict[str, Dict[str, Rule]] = {}
     for rule in routes.iter_rules():
@@ -66,11 +75,15 @@ def gen_openapi_spec(
     }
 
     components = Components(schemas=make_schemas(routes.iter_rules(), view_functions))
+
+    tags = [Tag(**tag) for tag in openapi_tags if tag] if openapi_tags else None
+
     return OpenAPI(
         openapi=openapi_version,
         info=info,
         paths=paths,
         components=components,
+        tags=tags,
     )
 
 
