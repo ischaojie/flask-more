@@ -10,7 +10,7 @@ Modernized Flask API builder with schema validator and OpenAPI.
 
 
 > **Warning**
-> 
+>
 > Currently, `Flask-Lan` is still under active development(before v1.0.0).
 >
 > Don't use it in production.
@@ -36,7 +36,7 @@ python -m pip install Flask-Lan
 You can view and run the code in the [example](/example/) file.
 Then open [http://127.0.0.1:5000/docs](http://127.0.0.1:5000/docs) you will see the API docs like this:
 
-![docs](/docs/assets/docs.png)
+![docs](https://img.chaojie.fun/flask-lan-docs.png)
 
 Read the [docs](https://flask-lan.chaojie.fun/) to get more details.
 
