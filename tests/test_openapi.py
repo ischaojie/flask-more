@@ -1,7 +1,7 @@
 from flask.testing import FlaskClient
 
-from flask_lan.schemas import OpenAPI
-from flask_lan.utils import get_normalize_path
+from flask_more.schemas import OpenAPI
+from flask_more.utils import get_normalize_path
 
 
 def test_openapi_spec(client: FlaskClient):

@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict, List, Optional, Union
 from flask import jsonify
 from pydantic import BaseModel
 
-from flask_lan.validate import validator
+from flask_more.validate import validator
 
 
 def api(

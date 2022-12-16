@@ -1,6 +1,6 @@
 # @api
 
-Basically, Flask-Lan does most of the work using the `@api` decorator, which does not disturb the existing routing view. The functionality adds validation of the request data, handles the request body data automatically, and helps you describe the api's functionality in more detail.
+Basically, Flask-More does most of the work using the `@api` decorator, which does not disturb the existing routing view. The functionality adds validation of the request data, handles the request body data automatically, and helps you describe the api's functionality in more detail.
 
 ## Validation
 

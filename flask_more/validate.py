@@ -4,7 +4,7 @@ from typing import Any, Callable, Dict, List, Tuple
 from flask import request
 from pydantic import BaseModel, ValidationError, parse_obj_as
 
-from flask_lan.utils import get_f_defaults
+from flask_more.utils import get_f_defaults
 
 
 def validator(

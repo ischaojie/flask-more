@@ -1,7 +1,7 @@
 from flask import Flask
 from pydantic import BaseModel
 
-from flask_lan import Lan, api
+from flask_more import Lan, api
 
 app = Flask(__name__)
 

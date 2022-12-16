@@ -1,6 +1,6 @@
-site_name: flask-lan
-site_description: flask-lan is a schema validator and swagger generator with more modernized.
-site_url: https://flask-lan.readthedocs.io/en/latest/
+site_name: flask-more
+site_description: flask-more is a schema validator and swagger generator with more modernized.
+site_url: https://flask-more.readthedocs.io/en/latest/
 site_author: chaojie
 
 theme:
@@ -17,8 +17,8 @@ theme:
   icon:
     repo: fontawesome/brands/github
 
-repo_name: ischaojie/flask-lan
-repo_url: https://github.com/ischaojie/flask-lan
+repo_name: ischaojie/flask-more
+repo_url: https://github.com/ischaojie/flask-more
 
 nav:
   - Overview: index.md

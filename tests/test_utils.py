@@ -1,4 +1,4 @@
-from flask_lan.utils import is_f_param_required
+from flask_more.utils import is_f_param_required
 
 
 def test_is_f_param_required():

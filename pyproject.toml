@@ -3,11 +3,11 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "Flask-Lan"
+name = "Flask-More"
 description = "Modernized Flask API builder with schema validator and OpenAPI"
 dynamic = ["version"]
 authors = [
-    { name = "chaojie", email = "zhuzhezhe95@gmail.com" },
+    { name = "chaojie", email = "hi@chaojie.fun" },
 ]
 readme = "README.md"
 license = "MIT"
@@ -40,11 +40,11 @@ classifiers = [
 ]
 
 [project.urls]
-Documentation = "https://flask-lan.chaojie.fun"
-Source = "https://github.com/ischaojie/flask-lan"
+Documentation = "https://flask-more.chaojie.fun"
+Source = "https://github.com/ischaojie/flask-more"
 
 [tool.hatch.version]
-path = "flask_lan/__init__.py"
+path = "flask_more/__init__.py"
 
 [tool.hatch.envs.default]
 dependencies = [
@@ -63,18 +63,18 @@ dependencies = [
 [tool.hatch.envs.default.scripts]
 clean = ["git clean"]
 check = [
-    "flake8 flask_lan tests --max-line-length=90",
-    "black --check --diff flask_lan tests",
-    "isort --check-only --diff flask_lan tests",
-    "mypy flask_lan"
+    "flake8 flask_more tests --max-line-length=90",
+    "black --check --diff flask_more tests",
+    "isort --check-only --diff flask_more tests",
+    "mypy flask_more"
 ]
 lint = [
-    "autoflake -r flask_lan tests",
-    "isort flask_lan tests",
-    "black flask_lan tests",
+    "autoflake -r flask_more tests",
+    "isort flask_more tests",
+    "black flask_more tests",
 ]
 test = [
-    "pytest tests/ -s --cov=flask_lan --cov-config=pyproject.toml --cov-report=term-missing --cov-report=xml --cov-fail-under=90",
+    "pytest tests/ -s --cov=flask_more --cov-config=pyproject.toml --cov-report=term-missing --cov-report=xml --cov-fail-under=90",
 ]
 report = ["coverage report -m"]
 all = ["check", "test"]

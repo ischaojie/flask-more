@@ -3,9 +3,9 @@ from typing import Any, Dict, List, Optional, Union, cast
 from flask import Flask, Response, json, jsonify, render_template_string
 from werkzeug.exceptions import HTTPException
 
-from flask_lan.openapi import gen_openapi_spec
-from flask_lan.schemas import OpenAPI
-from flask_lan.templates import redoc_template, swagger_template
+from flask_more.openapi import gen_openapi_spec
+from flask_more.schemas import OpenAPI
+from flask_more.templates import redoc_template, swagger_template
 
 
 class Lan:

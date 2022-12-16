@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from pydantic.schema import schema
 from werkzeug.routing import Map, Rule
 
-from flask_lan.schemas import (
+from flask_more.schemas import (
     Components,
     Contact,
     Info,
@@ -23,7 +23,7 @@ from flask_lan.schemas import (
     Schema,
     Tag,
 )
-from flask_lan.utils import get_normalize_path
+from flask_more.utils import get_normalize_path
 
 # The route paths should been excluded when generator openapi spc
 EXCLUDE_PATH = ("/docs", "/openapi.json", "/redoc")
