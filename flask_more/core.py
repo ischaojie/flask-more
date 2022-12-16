@@ -8,7 +8,7 @@ from flask_more.schemas import OpenAPI
 from flask_more.templates import redoc_template, swagger_template
 
 
-class Lan:
+class More:
     def __init__(
         self,
         app: Optional[Flask] = None,

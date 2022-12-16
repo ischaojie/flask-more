@@ -3,12 +3,12 @@ from typing import List
 from flask import Flask
 from pydantic import BaseModel
 
-from flask_more import Lan, api
+from flask_more import More, api
 
 app = Flask(__name__)
 app.config["TESTING"] = True
 
-Lan(
+More(
     app,
     title="Book API",
     version="1.1.1",

@@ -6,13 +6,13 @@ Basically, Flask-More does most of the work using the `@api` decorator, which do
 
 ```python
 from flask import FLask
-from flask_lan import Lan, api
+from flask_more import More, api
 from pydantic import BaseModel
 from models import User
 
 app = Flask(__name)
 
-Lan(app)
+More(app)
 
 
 class UserSchema(BaseModel):
@@ -32,13 +32,13 @@ def add_user(user: UserSchema):
 
 ```python
 from flask import FLask
-from flask_lan import Lan, api
+from flask_more import More, api
 from pydantic import BaseModel
 from models import User
 
 app = Flask(__name)
 
-Lan(app)
+More(app)
 
 
 class UserSchema(BaseModel):

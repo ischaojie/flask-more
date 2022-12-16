@@ -30,7 +30,7 @@ markdown_extensions:
   - pymdownx.superfences
 
 watch:
-- flask_lan
+- flask_more
 - example
 
 plugins:
