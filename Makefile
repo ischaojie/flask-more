@@ -1,10 +1,10 @@
 .DEFAULT_GOAL := all
-isort = hatch run isort flask_lan tests
-black = hatch run black flask_lan tests
+isort = hatch run isort flask_more tests
+black = hatch run black flask_more tests
 
 .PHONY: check
 check:
-	hatch run flake8 flask_lan/ tests/
+	hatch run flake8 flask_more/ tests/
 	$(isort) --check-only --df
 	$(black) --check --diff
 
