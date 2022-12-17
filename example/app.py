@@ -5,7 +5,17 @@ from flask_more import More, api
 
 app = Flask(__name__)
 
-More(app, "Book API")
+More(
+    app,
+    title="Book API",
+    version="0.1.0",
+    description="The book api docs",
+    contact={"name": "chaojie", "url": "https://chaojie.fun", "email": "hi@chaojie.fun"},
+    license_info={"name": "MIT"},
+    openapi_tags=[
+        {"name": "books", "description": "This is books api"},
+    ],
+)
 
 books = [
     {

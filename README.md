@@ -13,7 +13,7 @@ Modernized Flask API builder with schema validator and OpenAPI.
 >
 > Currently, `Flask-More` is still under active development(before v1.0.0).
 >
-> Don't use it in production.
+> Be careful to use it in production.
 
 Flask-More is kind of like the famous library [FastAPI](https://github.com/tiangolo/fastapi), bringing part of its brilliant features to your Flask application, you can see a lot of similarities between the two.
 
@@ -30,15 +30,13 @@ it will auto-generate `OpenAPI` API docs and so on.
 ## Quick start
 
 ```bash
-python -m pip install Flask-More
+python -m pip install flask-more
 ```
 
-You can view and run the code in the [example](/example/) file.
+You can view and run the code in the [example](https://github.com/ischaojie/flask-more/tree/main/example) file.
 Then open [http://127.0.0.1:5000/docs](http://127.0.0.1:5000/docs) you will see the API docs like this:
 
-![docs](https://img.chaojie.fun/flask-more-docs.png)
-
-Read the [docs](https://flask-more.chaojie.fun/) to get more details.
+![docs](https://img.chaojie.fun/flask-lan-docs.png)
 
 ## License
 
