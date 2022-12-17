@@ -12,15 +12,6 @@ def get_f_defaults(f: Callable) -> Iterable:
             yield k, v.default
 
 
-def is_f_param_required(f: Callable, param_name: str) -> bool:
-    sig = signature(f)
-    params_dict = dict((sig.parameters.items()))
-    parameter = params_dict.get(param_name, None)
-    if not parameter:
-        return False
-    return parameter.default is parameter.empty
-
-
 def get_normalize_path(rule: Rule) -> str:
     parts = []
     for is_dynamic, data in rule._trace:
