@@ -93,7 +93,7 @@ def make_pathitem(
 ) -> PathItem:
     items = {}
     for method, rule in method_rules.items():
-        view_func = view_functions.get(rule.endpoint, None)
+        view_func = view_functions.get(rule.endpoint)
         if not view_func:
             continue
         items[method] = make_operation(rule, view_func)
@@ -164,9 +164,9 @@ def make_schemas(
 ) -> Dict[str, Union[Schema, Reference]]:
     _schemas = []
     for rule in rules:
-        view_func = view_functions.get(rule.endpoint, None)
+        view_func = view_functions.get(rule.endpoint)
         if not view_func:
-            return {}
+            continue
         sig = signature(view_func)
         for _, param in sig.parameters.items():
             _type = param.annotation

@@ -88,6 +88,12 @@ def echo_body(book: BookSchema):
     return {"title": book.title, "price": book.price, "author": dict(book.author)}
 
 
+@app.put("/echo_body_and_path/<id>")
+@api
+def echo_body_and_query(id: int, book: BookSchema):
+    return {"id": id, "book": book.dict()}
+
+
 @app.post("/echo_body_2")
 @api
 def echo_body_2(movie: MovieSchema):
@@ -104,6 +110,11 @@ def echo_path_and_query(id: int, name: str, age: int = 18):
 @api(rsp_model=RspSchema)
 def echo_rsp():
     return RspSchema(items=[BookSchema(title="test", price=1.0)])
+
+
+@api
+def no_router(schema: BookSchema) -> None:
+    pass
 
 
 if __name__ == "__main__":

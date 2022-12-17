@@ -1,11 +1,11 @@
 from flask import Flask
 from pydantic import BaseModel
 
-from flask_more import Lan, api
+from flask_more import More, api
 
 app = Flask(__name__)
 
-Lan(app, "Book API")
+More(app, "Book API")
 
 books = [
     {

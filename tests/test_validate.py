@@ -65,6 +65,18 @@ def test_validate_body_empty(client: FlaskClient):
     assert rsp.status_code == 400
 
 
+def test_validate_body_and_path(client: FlaskClient) -> None:
+    book = {
+        "title": "test",
+        "price": 1.0,
+        "author": {"name": "chaojie"},
+    }
+    rsp = client.put("/echo_body_and_path/1", json=book)
+    assert rsp.status_code == 200
+    assert rsp.json["id"] == 1
+    assert rsp.json["book"] == book
+
+
 def test_invalid_body(client: FlaskClient):
     rsp = client.post(
         "/echo_body",
@@ -96,7 +108,6 @@ def test_body_with_nested_form(client: FlaskClient):
         "author": str({"name": "chaojie"}),
     }
     rsp = client.post("/echo_body", data=data)
-    print(rsp.data)
     assert rsp.status_code == 400
 
 

@@ -57,7 +57,8 @@ dependencies = [
     "pytest-cov",
     "mkdocs",
     "mkdocs-material",
-    "mkdocstrings[python]>=0.18"
+    "mkdocstrings[python]>=0.18",
+    "openapi-spec-validator",
 ]
 
 [tool.hatch.envs.default.scripts]
@@ -74,7 +75,7 @@ lint = [
     "black flask_more tests",
 ]
 test = [
-    "pytest tests/ -s --cov=flask_more --cov-config=pyproject.toml --cov-report=term-missing --cov-report=xml --cov-fail-under=90",
+    "pytest tests/ -s --cov=flask_more --cov-config=pyproject.toml --cov-report=term-missing --cov-report=xml --cov-fail-under=99",
 ]
 report = ["coverage report -m"]
 all = ["check", "test"]
