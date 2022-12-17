@@ -2,7 +2,7 @@ from flask import Flask
 from flask.testing import FlaskClient
 from openapi_spec_validator import validate_spec
 
-from flask_more.openapi import make_schemas
+from flask_more.openapi import make_operation, make_schemas
 from flask_more.schemas import OpenAPI
 from flask_more.utils import get_normalize_path
 
@@ -48,7 +48,26 @@ def test_openapi_nested_schemas(client: FlaskClient) -> None:
 
 
 def test_make_schemas(app: Flask) -> None:
-    should_maked_schemas = ("Author", "BookSchema", "MovieSchema")
+    should_made_schemas = ("Author", "BookSchema", "MovieSchema")
     schemas = make_schemas(app.url_map.iter_rules(), app.view_functions)
     for schema in schemas:
-        assert schema in should_maked_schemas
+        assert schema in should_made_schemas
+
+
+def test_make_operation_parameters_type_and_default(app: Flask) -> None:
+    rule = app.url_map.iter_rules("echo_path_and_query")
+    view_func = app.view_functions["echo_path_and_query"]
+    operation = make_operation(list(rule)[0], view_func)
+    should_made_parameters = {
+        "id": {"type": "int"},
+        "name": {"type": "str"},
+        "age": {"type": "int", "default": 18},
+    }
+    for parameter in operation.parameters:
+        assert parameter.name in should_made_parameters
+        assert parameter.schema_.type == should_made_parameters[parameter.name]["type"]
+        if "default" in should_made_parameters[parameter.name]:
+            assert (
+                parameter.schema_.default
+                == should_made_parameters[parameter.name]["default"]
+            )

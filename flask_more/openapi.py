@@ -116,24 +116,34 @@ def make_operation(rule: Rule, view_func: Callable) -> Operation:
     request_body_required = False
     for name, param in sig.parameters.items():
         _type = param.annotation
+        _type_name = str(_type.__name__)
+        schema_dict = {"type": _type_name}
         # this is path params
         if name in rule.arguments:
             parameters.append(
-                Parameter(name=name, in_=ParameterInType.path, required=True)
+                Parameter(
+                    name=name,
+                    in_=ParameterInType.path,
+                    required=True,
+                    schema_=Schema(**schema_dict),
+                )
             )
         # this is request body params
         elif issubclass(_type, BaseModel):
             request_body_content["application/json"] = MediaType(
-                schema_=Reference(ref=f"#/components/schemas/{_type.__name__}")
+                schema_=Reference(ref=f"#/components/schemas/{_type_name}")
             )
             request_body_required = True
         # this is query body
         else:
+            if param.default is not param.empty:
+                schema_dict["default"] = param.default
             parameters.append(
                 Parameter(
                     name=name,
                     in_=ParameterInType.query,
                     required=param.default is InspectParameter.empty,
+                    schema_=Schema(**schema_dict),
                 )
             )
 
