@@ -22,6 +22,7 @@ repo_url: https://github.com/ischaojie/flask-more
 
 nav:
   - Overview: index.md
+  - Getting started: getting_start.md
   - API Decorator: api.md
 
 markdown_extensions:
