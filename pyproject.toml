@@ -50,7 +50,7 @@ path = "flask_more/__init__.py"
 dependencies = [
     "flake8",
     "mypy",
-    "black",
+    "black==23.1.0",
     "isort",
     "autoflake",
     "mkdocs",

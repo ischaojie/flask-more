@@ -105,7 +105,6 @@ def make_pathitem(
 
 
 def make_operation(rule: Rule, view_func: Callable) -> Operation:
-
     sig = signature(view_func)
 
     api_desc = getattr(view_func, "__openapi__", {})
