@@ -39,7 +39,6 @@ def api(
 
     @wraps(f)
     def wrapper(*args: List, **kwargs: Dict) -> Any:
-
         errors, validated = validator(f, *args, **kwargs)  # type: ignore
         if errors["details"]:
             return jsonify(errors), 400

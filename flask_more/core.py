@@ -41,7 +41,6 @@ class More:
             self.init_app(app)
 
     def init_app(self, app: Flask) -> None:
-
         self.app.register_error_handler(HTTPException, self.handle_exception)
 
         if self.docs_url:
