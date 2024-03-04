@@ -10,6 +10,8 @@ jobs:
   publish:
     name: "Publish release"
     runs-on: "ubuntu-latest"
+    permissions:
+      id-token: write
 
     steps:
       - uses: "actions/checkout@v3"
@@ -28,6 +30,4 @@ jobs:
           hatch run mkdocs build --clean
 
       - name: Publish
-        run: |
-          hatch publish -u "${{ secrets.USERNAME }}" -a "${{ secrets.PASSWORD }}"
-          hatch run mkdocs gh-deploy --force
+        uses: pypa/gh-action-pypi-publish@release/v1
